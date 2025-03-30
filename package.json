@@ -1,9 +1,9 @@
 {
-  "name": "gs1-qr-generator",
+  "name": "bahgat-qr-generator",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://ahmedbahgattt.github.io/gs1-qr-generator",
+  "homepage": "https://ahmedbahgattt.github.io/bahgat-qr-generator",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
