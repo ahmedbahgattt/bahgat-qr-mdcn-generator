@@ -3,10 +3,20 @@ import { QRCodeSVG as QRCode } from "qrcode.react";
 
 const GS1QRGenerator: React.FC = () => {
   const [gtin, setGtin] = useState("");
+  const [randomGtinPrefix, setRandomGtinPrefix] = useState("");
   const [showInput, setShowInput] = useState(true);
   const [batchNumber, setBatchNumber] = useState("");
-  const [expirationDate] = useState("231231");
+  const [expirationDate, setExpirationDate] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
+
+  // Generate random 8-digit prefix for GTIN
+  const generateRandomGtinPrefix = () => {
+    let result = "";
+    for (let i = 0; i < 8; i++) {
+      result += Math.floor(Math.random() * 10).toString();
+    }
+    return result;
+  };
 
   // Generate random batch number
   const generateBatchNumber = () => {
@@ -18,6 +28,22 @@ const GS1QRGenerator: React.FC = () => {
     const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
     const timestamp = Date.now().toString().slice(-4);
     return `${randomStr}${timestamp}`;
+  };
+
+  // Calculate expiration date (2-5 years from now)
+  const calculateExpirationDate = () => {
+    const today = new Date();
+    // Add random number of years between 2 and 5
+    const yearsToAdd = Math.floor(Math.random() * 4) + 2; // 2 to 5 years
+    const expiryDate = new Date(today);
+    expiryDate.setFullYear(today.getFullYear() + yearsToAdd);
+
+    // Format as YYMMDD
+    const year = expiryDate.getFullYear().toString().slice(-2);
+    const month = (expiryDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = expiryDate.getDate().toString().padStart(2, "0");
+
+    return `${year}${month}${day}`;
   };
 
   // Validate GTIN input (6 digits)
@@ -33,20 +59,19 @@ const GS1QRGenerator: React.FC = () => {
 
   // Generate GS1 data string
   const generateGS1Data = () => {
-    return `01${gtin.padStart(
-      6,
-      "0"
-    )}10${batchNumber}17${expirationDate}21${serialNumber}`;
+    // Combine random 8-digit prefix with user's 6-digit input
+    const completeGtin = `${randomGtinPrefix}${gtin.padStart(6, "0")}`;
+    return `01${completeGtin}10${batchNumber}17${expirationDate}21${serialNumber}`;
   };
 
-  // Auto-update serial number every 0.2 seconds when QR is showing
+  // Auto-update serial number every 0.5 seconds when QR is showing
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (!showInput && gtin.length === 6) {
       interval = setInterval(() => {
         setSerialNumber(generateSerialNumber());
         setBatchNumber(generateBatchNumber());
-      }, 200);
+      }, 500);
     }
     return () => {
       if (interval) {
@@ -55,11 +80,21 @@ const GS1QRGenerator: React.FC = () => {
     };
   }, [showInput, gtin]);
 
-  // Initialize serial number and batch number
+  // Initialize serial number, batch number, GTIN prefix and expiration date
   useEffect(() => {
     setBatchNumber(generateBatchNumber());
     setSerialNumber(generateSerialNumber());
+    setRandomGtinPrefix(generateRandomGtinPrefix());
+    setExpirationDate(calculateExpirationDate());
   }, []);
+
+  // Update GTIN prefix and expiration date when resetting
+  useEffect(() => {
+    if (showInput) {
+      setRandomGtinPrefix(generateRandomGtinPrefix());
+      setExpirationDate(calculateExpirationDate());
+    }
+  }, [showInput]);
 
   return (
     <div className="gs1-container">
@@ -68,8 +103,8 @@ const GS1QRGenerator: React.FC = () => {
           <h1
             style={{
               color: "#e7ff4b",
-              marginBottom: "20px",
               fontSize: "1.5rem",
+              marginBottom: "20px",
             }}
           >
             Bahgat MDCN QR Generator
