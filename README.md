@@ -56,3 +56,4 @@ export default tseslint.config({
 # qr-code
 # bahgat-qr-mdcn-generator
 # bahgat-qr-mdcn-generator
+# bahgat-qr-mdcn-generator
