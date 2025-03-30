@@ -18,16 +18,25 @@ const GS1QRGenerator: React.FC = () => {
     return result;
   };
 
-  // Generate random batch number
+  // Generate random batch number (6 alphanumeric characters)
   const generateBatchNumber = () => {
-    return Math.random().toString(36).substring(2, 8).toUpperCase();
+    const alphanumeric = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let result = "";
+    for (let i = 0; i < 6; i++) {
+      result += alphanumeric.charAt(
+        Math.floor(Math.random() * alphanumeric.length)
+      );
+    }
+    return result;
   };
 
-  // Generate random serial number
+  // Generate random serial number (11 numeric digits)
   const generateSerialNumber = () => {
-    const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const timestamp = Date.now().toString().slice(-4);
-    return `${randomStr}${timestamp}`;
+    let result = "";
+    for (let i = 0; i < 11; i++) {
+      result += Math.floor(Math.random() * 10).toString();
+    }
+    return result;
   };
 
   // Calculate expiration date (2-5 years from now)
@@ -61,9 +70,7 @@ const GS1QRGenerator: React.FC = () => {
   const generateGS1Data = () => {
     // Combine random 8-digit prefix with user's 6-digit input
     const completeGtin = `${randomGtinPrefix}${gtin.padStart(6, "0")}`;
-    // Add FNC1 (ASCII Group Separator) after variable length fields
-    const fnc1 = String.fromCharCode(29); // ASCII Group Separator character
-    return `01${completeGtin}17${expirationDate}10${batchNumber}${fnc1}#21${serialNumber}${fnc1}`;
+    return `01${completeGtin}17${expirationDate}10${batchNumber}#21${serialNumber}`;
   };
 
   // Auto-update serial number every 0.5 seconds when QR is showing
