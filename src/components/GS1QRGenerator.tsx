@@ -65,6 +65,15 @@ const GS1QRGenerator: React.FC = () => {
     <div className="gs1-container">
       {showInput ? (
         <div className="input-container">
+          <h1
+            style={{
+              color: "#e7ff4b",
+              marginBottom: "20px",
+              fontSize: "1.5rem",
+            }}
+          >
+            Bahgat MDCN QR Generator
+          </h1>
           <div className="input-group">
             <label className="input-label">Enter your code</label>
             <input
@@ -86,7 +95,18 @@ const GS1QRGenerator: React.FC = () => {
             size={256}
             level="H"
             style={{ width: "70%", height: "auto" }}
+            imageSettings={{
+              src: "",
+              height: 24,
+              width: 24,
+              excavate: true,
+            }}
           />
+          <p
+            style={{ color: "#e7ff4b", marginTop: "10px", fontSize: "0.8rem" }}
+          >
+            Bahgat MDCN QR Code
+          </p>
           <button
             onClick={() => {
               setShowInput(true);
