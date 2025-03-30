@@ -61,7 +61,9 @@ const GS1QRGenerator: React.FC = () => {
   const generateGS1Data = () => {
     // Combine random 8-digit prefix with user's 6-digit input
     const completeGtin = `${randomGtinPrefix}${gtin.padStart(6, "0")}`;
-    return `01${completeGtin}10${batchNumber}17${expirationDate}21${serialNumber}`;
+    // Add FNC1 (ASCII Group Separator) after variable length fields
+    const fnc1 = String.fromCharCode(29); // ASCII Group Separator character
+    return `01${completeGtin}10${batchNumber}${fnc1}17${expirationDate}21${serialNumber}${fnc1}`;
   };
 
   // Auto-update serial number every 0.5 seconds when QR is showing
@@ -119,6 +121,8 @@ const GS1QRGenerator: React.FC = () => {
               value={gtin}
               onChange={(e) => validateGtin(e.target.value)}
               maxLength={6}
+              autoFocus
+              style={{ fontSize: "24px" }}
             />
           </div>
           <div className="wave-background" />
