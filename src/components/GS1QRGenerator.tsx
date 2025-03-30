@@ -3,9 +3,15 @@ import { QRCodeSVG as QRCode } from "qrcode.react";
 
 const GS1QRGenerator: React.FC = () => {
   const [gtin, setGtin] = useState("");
-  const [batchNumber] = useState("BATCH123"); // Example static batch number
-  const [expirationDate] = useState("231231"); // Example expiration date (YYMMDD)
+  const [showInput, setShowInput] = useState(true);
+  const [batchNumber, setBatchNumber] = useState("");
+  const [expirationDate] = useState("231231");
   const [serialNumber, setSerialNumber] = useState("");
+
+  // Generate random batch number
+  const generateBatchNumber = () => {
+    return `BATCH${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+  };
 
   // Generate random serial number
   const generateSerialNumber = () => {
@@ -19,73 +25,77 @@ const GS1QRGenerator: React.FC = () => {
     const regex = /^\d{0,6}$/;
     if (regex.test(input)) {
       setGtin(input);
+      if (input.length === 6) {
+        setShowInput(false);
+      }
     }
   };
 
   // Generate GS1 data string
   const generateGS1Data = () => {
-    // Format: AI(01) + GTIN + AI(10) + Batch + AI(17) + ExpDate + AI(21) + SerialNumber
     return `01${gtin.padStart(
       6,
       "0"
     )}10${batchNumber}17${expirationDate}21${serialNumber}`;
   };
 
-  // Handle regenerate serial number
-  const handleRegenerateSerial = () => {
-    setSerialNumber(generateSerialNumber());
-  };
-
-  // Initialize serial number if not set
+  // Auto-update serial number every 0.2 seconds when QR is showing
   useEffect(() => {
-    if (!serialNumber) {
-      handleRegenerateSerial();
+    let interval: ReturnType<typeof setInterval>;
+    if (!showInput && gtin.length === 6) {
+      interval = setInterval(() => {
+        setSerialNumber(generateSerialNumber());
+        setBatchNumber(generateBatchNumber());
+      }, 200);
     }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [showInput, gtin]);
+
+  // Initialize serial number and batch number
+  useEffect(() => {
+    setBatchNumber(generateBatchNumber());
+    setSerialNumber(generateSerialNumber());
   }, []);
 
   return (
-    <div
-      className="gs1-container"
-      style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}
-    >
-      <h1>GS1 Data Matrix Generator</h1>
-
-      <div style={{ marginBottom: "20px" }}>
-        <label style={{ display: "block", marginBottom: "10px" }}>
-          Enter GTIN (6 digits):
-          <input
-            type="text"
-            value={gtin}
-            onChange={(e) => validateGtin(e.target.value)}
-            style={{ marginLeft: "10px", padding: "5px" }}
-            maxLength={6}
+    <div className="gs1-container">
+      {showInput ? (
+        <div className="input-container">
+          <div className="input-group">
+            <label className="input-label">Enter your code</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              placeholder="Enter 6-digit code"
+              value={gtin}
+              onChange={(e) => validateGtin(e.target.value)}
+              maxLength={6}
+            />
+          </div>
+          <div className="wave-background" />
+        </div>
+      ) : (
+        <div className="qr-container">
+          <QRCode
+            value={generateGS1Data()}
+            size={256}
+            level="H"
+            style={{ width: "70%", height: "auto" }}
           />
-        </label>
-      </div>
-
-      <div style={{ marginBottom: "20px" }}>
-        <p>Batch Number: {batchNumber}</p>
-        <p>Expiration Date: {expirationDate}</p>
-        <p>Serial Number: {serialNumber}</p>
-        <button
-          onClick={handleRegenerateSerial}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#4CAF50",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Generate New Serial Number
-        </button>
-      </div>
-
-      {gtin.length === 6 && (
-        <div style={{ textAlign: "center" }}>
-          <QRCode value={generateGS1Data()} size={256} level="H" />
-          <p style={{ marginTop: "10px" }}>GS1 Data: {generateGS1Data()}</p>
+          <button
+            onClick={() => {
+              setShowInput(true);
+              setGtin("");
+            }}
+          >
+            <span>Enter New Code</span>
+          </button>
+          <div className="wave-background" />
         </div>
       )}
     </div>

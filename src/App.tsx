@@ -1,4 +1,3 @@
-import React from "react";
 import GS1QRGenerator from "./components/GS1QRGenerator";
 import "./App.css";
 
