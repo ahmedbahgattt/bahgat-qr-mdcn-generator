@@ -20,7 +20,7 @@ const GS1QRGenerator: React.FC = () => {
 
   // Generate random batch number
   const generateBatchNumber = () => {
-    return `BATCH${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
   };
 
   // Generate random serial number
@@ -63,7 +63,7 @@ const GS1QRGenerator: React.FC = () => {
     const completeGtin = `${randomGtinPrefix}${gtin.padStart(6, "0")}`;
     // Add FNC1 (ASCII Group Separator) after variable length fields
     const fnc1 = String.fromCharCode(29); // ASCII Group Separator character
-    return `01${completeGtin}10${batchNumber}${fnc1}17${expirationDate}21${serialNumber}${fnc1}`;
+    return `01${completeGtin}17${expirationDate}10${batchNumber}${fnc1}#21${serialNumber}${fnc1}`;
   };
 
   // Auto-update serial number every 0.5 seconds when QR is showing
