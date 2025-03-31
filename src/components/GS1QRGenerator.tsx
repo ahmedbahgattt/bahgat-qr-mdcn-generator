@@ -3,20 +3,10 @@ import { QRCodeSVG as QRCode } from "qrcode.react";
 
 const GS1QRGenerator: React.FC = () => {
   const [gtin, setGtin] = useState("");
-  const [randomGtinPrefix, setRandomGtinPrefix] = useState("");
   const [showInput, setShowInput] = useState(true);
   const [batchNumber, setBatchNumber] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
-
-  // Generate random 8-digit prefix for GTIN
-  const generateRandomGtinPrefix = () => {
-    let result = "";
-    for (let i = 0; i < 8; i++) {
-      result += Math.floor(Math.random() * 10).toString();
-    }
-    return result;
-  };
 
   // Generate random batch number (6 alphanumeric characters)
   const generateBatchNumber = () => {
@@ -68,8 +58,8 @@ const GS1QRGenerator: React.FC = () => {
 
   // Generate GS1 data string
   const generateGS1Data = () => {
-    // Combine random 8-digit prefix with user's 6-digit input
-    const completeGtin = `${randomGtinPrefix}${gtin.padStart(6, "0")}`;
+    // Add 8 zeros as prefix to user's 6-digit input
+    const completeGtin = `00000000${gtin.padStart(6, "0")}`;
     return `01${completeGtin}17${expirationDate}10${batchNumber}#21${serialNumber}`;
   };
 
@@ -89,18 +79,16 @@ const GS1QRGenerator: React.FC = () => {
     };
   }, [showInput, gtin]);
 
-  // Initialize serial number, batch number, GTIN prefix and expiration date
+  // Initialize serial number, batch number and expiration date
   useEffect(() => {
     setBatchNumber(generateBatchNumber());
     setSerialNumber(generateSerialNumber());
-    setRandomGtinPrefix(generateRandomGtinPrefix());
     setExpirationDate(calculateExpirationDate());
   }, []);
 
-  // Update GTIN prefix and expiration date when resetting
+  // Update expiration date when resetting
   useEffect(() => {
     if (showInput) {
-      setRandomGtinPrefix(generateRandomGtinPrefix());
       setExpirationDate(calculateExpirationDate());
     }
   }, [showInput]);
